@@ -1,9 +1,11 @@
 # C64 Video Diagnostic Test Suite
 
-[![Platform](https://shields.io)](https://wikipedia.org)
-[![Language](https://shields.io)](https://wikipedia.org)
-[![Assembler](https://shields.io)](https://sourceforge.net)
-[![Software Version](https://shields.io)]()
+# C64 Video Diagnostic Test Suite
+
+![Platform](https://shields.io)
+![Language](https://shields.io)
+![Assembler](https://shields.io)
+![Software Version](https://shields.io)
 
 Lo **C64 Video Diagnostic Test Suite** è uno strumento software professionale scritto in Assembly 6502 (ACME Assembler) progettato per l'analisi dettagliata, la calibrazione e la diagnostica del segnale video generato dal chip grafico **VIC-II** del Commodore 64. 
 
