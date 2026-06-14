@@ -1,7 +1,5 @@
 # C64 Video Diagnostic Test Suite
 
-# C64 Video Diagnostic Test Suite
-
 ![Platform](https://shields.io)
 ![Language](https://shields.io)
 ![Assembler](https://shields.io)
