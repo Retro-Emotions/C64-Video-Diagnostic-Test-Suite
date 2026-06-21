@@ -1,0 +1,6 @@
+# MacOS hidden files
+._*
+
+# VS Code + VS64
+build
+.vscode
