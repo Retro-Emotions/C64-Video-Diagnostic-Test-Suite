@@ -1,0 +1,79 @@
+================================================================================
+C64 VIDEO DIAGNOSTIC TEST - ANALISI DEI REQUISITI ED EVOLUZIONE (VERSIONE 2.00)
+================================================================================
+
+Questo documento definisce i requisiti tecnici, grafici e funzionali per la 
+progettazione e lo sviluppo della futura Versione 2.00 del software diagnostico.
+
+--------------------------------------------------------------------------------
+1. REQUISITI FUNZIONALI (NUOVE ROUTINE DIAGNOSTICHE)
+--------------------------------------------------------------------------------
+Il software deve implementare nuovi test pattern per identificare specifiche 
+anomalie hardware legate al chip VIC-II, ai cavi video e ai monitor LCD/CRT.
+
+[REQ-1.1] TEST DI GHOSTING E SMEARING (SPRITE DINAMICI)
+- Obiettivo: Verificare i tempi di risposta dei pixel e la scia dei fosfori.
+- Implementazione: Muovere ad alta velocita' (orizzontale/verticale) una serie 
+  di blocchi solidi (Sprite) Bianchi e Rossi su sfondo Nero profondo.
+
+[REQ-1.2] TEST DI CLASHING CRITICO (INTERFERENZE CROMATICHE)
+- Obiettivo: Evidenziare la qualita' della separazione Luma/Chroma nei cavi.
+- Implementazione: Generare un pattern a barre verticali fitte alternando 
+  coppie cromatiche ad alto contrasto analogico (Rosso/Blu e Ciano/Rosso).
+
+[REQ-1.3] TEST DI PUREZZA E ANALISI "JAILBARS" (FULL-SCREEN GREYSCALE)
+- Obiettivo: Isolare le barre fantasma del C64 e calibrare l'uniformita' CRT.
+- Implementazione: Tre schermate statiche selezionabili a tutto schermo (100%):
+  Grigio Scuro (COLOR_DK_GREY), Grigio Medio (COLOR_MD_GREY), Bianco (COLOR_WHITE).
+
+--------------------------------------------------------------------------------
+2. REQUISITI DI INTERFACCIA UTENTE (UX & GRAFICA MENU)
+--------------------------------------------------------------------------------
+L'aspetto visivo del menu principale deve evolversi verso uno stile piu' 
+moderno ed ergonomico, tipico delle utility professionali storiche.
+
+[REQ-2.1] TITOLO CON CARATTERI RIDEFINITI (LOGO UDG)
+- Obiettivo: Migliorare l'impatto visivo della schermata di boot.
+- Implementazione: Disattivare la ROM caratteri standard per la sola intestazione
+  e caricare in RAM un set di caratteri personalizzati (User Defined Graphics)
+  per formare un grande logo grafico testuale (es. "C64 VIDEO DIAGNOSTIC").
+
+[REQ-2.2] NUOVA TAVOLOZZA COLORI INTERFACCIA
+- Obiettivo: Ridurre l'affaticamento visivo durante le sessioni di laboratorio.
+- Implementazione: Sfondo del menu Grigio Scuro o Blu Scuro, con testi informativi
+  in Grigio Chiaro/Ciano e tasti di scelta rapida evidenziati in Giallo/Bianco.
+
+[REQ-2.3] NAVIGAZIONE INTERATTIVA
+- Obiettivo: Fornire un metodo di controllo alternativo alla tastiera numerica.
+- Implementazione: Gestione di una barra di selezione mobile (Cursor bar). L'utente
+  deve poter scorrere i test tramite i tasti CRSR (Su/Giu) o tramite Joystick 
+  inserito nella Porta 2, confermando la scelta con il tasto RETURN o FIRE.
+
+--------------------------------------------------------------------------------
+3. REQUISITI HARDWARE INTERNI (COMPATIBILITÀ UNIVERSALE)
+--------------------------------------------------------------------------------
+Il software deve essere in grado di adattarsi in autonomia alle differenze di 
+frequenza e temporizzazione dei diversi modelli di Commodore 64 nel mondo.
+
+[REQ-3.1] RICONOSCIMENTO AUTOMATICO DELLO STANDARD VIDEO (PAL / NTSC)
+- Obiettivo: Sincronizzare automaticamente i test dinamici senza modifiche al codice.
+- Implementazione: Una routine di boot esegue un loop di conteggio delle linee 
+  del raster (VIC_RASTCNT) per determinare se la macchina e' PAL (MOS 6569, 312 
+  linee, 50Hz) o NTSC (MOS 6567, 263 linee, 60Hz).
+- Impatto: Il valore rilevato deve ricalibrare automaticamente il numero di NOP
+  e il ritardo della linea nel Test 5 (Raster Stability), raddrizzando la barra
+  sia su macchine europee che americane (o profili emulatori differenti).
+
+--------------------------------------------------------------------------------
+4. REQUISITI DI ARCHITETTURA SOFTWARE
+--------------------------------------------------------------------------------
+[REQ-4.1] ISOLAMENTO DELLA ZERO PAGE
+- Le routine future non dovranno utilizzare le locazioni $FB-$FC (potenzialmente 
+  instabili se si usano chiamate KERNAL complesse). Verranno allocate variabili 
+  fisse nella RAM alta protetta.
+
+[REQ-4.2] COMPILAZIONE MODULARE INDIPENDENTE
+- Ogni nuovo test verra' confinato in un banco di memoria rigorosamente separato
+  tramite direttive d'origine di ACME (es. * = $C400, * = $C800) per scongiurare 
+  qualsiasi fenomeno di sovrascrittura distruttiva del codice visivo.
+================================================================================

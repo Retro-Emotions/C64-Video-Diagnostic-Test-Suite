@@ -1,0 +1,166 @@
+================================================================================
+C64 VIDEO DIAGNOSTIC TEST SUITE - MANUALE COMPLETO (VERSIONE 1.00)
+================================================================================
+Autore: Sviluppato in ACME Assembler
+Piattaforma: Commodore 64 / 128 (in modalita' C64)
+Standard Video: PAL (ottimizzato) / NTSC (compatibile per i test statici)
+Requisiti Hardware: C64 (Reale o Emulatore VICE), Monitor CRT o LCD con Scaler
+================================================================================
+
+--------------------------------------------------------------------------------
+1. INTRODUZIONE E ARCHITETTURA DEL SOFTWARE
+--------------------------------------------------------------------------------
+Il "C64 Video Diagnostic Test" e' una suite software scritta interamente in 
+Linguaggio Assembler 6502/6510, progettata per analizzare la resa cromatica, 
+la geometria, la nitidezza e la stabilita' del segnale video generato dal chip 
+grafico MOS VIC-II (6569/6567).
+
+Il programma e' strutturato in modo modulare per evitare conflitti e collisioni 
+nella memoria RAM del C64, sfruttando la tecnica del "Codice Automodificante" 
+(SMC) al posto dei registri della Zero Page per garantire la massima velocita' 
+di esecuzione e stabilita' hardware.
+
+--------------------------------------------------------------------------------
+2. MAPPA DELLA MEMORIA RAM (MEMORY MAP v1.00)
+--------------------------------------------------------------------------------
+Il software alloca le proprie risorse in modo strategico per non interferire 
+con i vettori del sistema operativo e impedire la sovrascrittura del codice 
+da parte delle routine grafiche:
+
+- $0801:          Intestazione BASIC (SYS 2061) per l'autostart tramite 'RUN'
+- $080D - $0BFF:  Codice sorgente del Menu Principale e logica della Tastiera
+- $0C00 - $0FFF:  Screen RAM Grafica (utilizzata temporaneamente dai Test 1 e 3)
+- $2000 - $3F3F:  Bitmap RAM Grafica (utilizzata temporaneamente dai Test 1 e 3)
+- $C000 - $C1FF:  Area protetta allocata per il Test 4 (SMPTE Color Pattern)
+- $C200 - $C3FF:  Area protetta allocata per il Test 5 (Raster Timing Stability)
+- $D800 - $DBE8:  Color RAM nativa del C64 (utilizzata per i test colore 2 e 4)
+
+--------------------------------------------------------------------------------
+3. GUIDA ALL'USO DEL MENU PRINCIPALE
+--------------------------------------------------------------------------------
+All'avvio, il programma pulisce lo schermo, imposta i bordi neri per evitare 
+distrazioni visive e visualizza il menu di selezione in testo Grigio Chiaro:
+
+    ========================================
+    C64 VIDEO DIAGNOSTIC TEST
+    V. 1.00
+    
+     1 - CROSSHATCH GEOMETRY (HI-RES)
+     2 - 16 COLOR BARS (LUMINANCE)
+     3 - CHECKERBOARD 1X1 (SHARPNESS)
+     4 - SMPTE COLOR PATTERN
+     5 - RASTER TIMING STABILITY
+    ========================================
+
+CONTROLLI GLOBALI:
+- Tasti da [1] a: Attivano istantaneamente il rispettivo test video.
+- Tasto [SPAZIO]:     Esce dal test corrente, riattiva gli interrupt KERNAL 
+                      e ridisegna il menu principale azzerando i buffer.
+
+--------------------------------------------------------------------------------
+4.SPECIFICHE DETTAGLIATE DEI 5 TEST PATTERN
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+TEST 1: CROSSHATCH GEOMETRY (Tasto 1)
+--------------------------------------------------------------------------------
+Attiva la modalita' grafica Hi-Res (320x200 pixel). Disegna un reticolo perfetto 
+di linee bianche spesse 1 pixel su sfondo nero assoluto, allineato matematicamente 
+sulla matrice di blocchi 8x8 del VIC-II.
+
+DIAGNOSTICA:
+- Distorsione Geometrica: Le linee devono essere perfettamente dritte e gli 
+  angoli retti. Serve a regolare i potenziometri interni dei monitor CRT 
+  (V-SIZE, H-SIZE, V-LIN, CUSHION) per correggere gli effetti "cuscino/barile".
+- Convergenza Catodica: Se vedi aloni colorati (rossi, verdi o blu) attorno alle 
+  linee bianche, i tre fasci di elettroni del tubo della TV sono disallineati.
+- Verifica Pixel-Perfect: Su monitor LCD con upscaler moderni (OSSC, RetroTINK), 
+  serve a verificare che l'aspect ratio sia corretto e lo scaling sia uniforme.
+
+--------------------------------------------------------------------------------
+TEST 2: 16 COLOR BARS (Tasto 2)
+--------------------------------------------------------------------------------
+Riempie lo schermo con blocchi pieni visualizzando 16 barre verticali, larghe 2 
+colonne ciascuna, centrate a schermo. I 16 colori nativi del C64 sono ordinati 
+in base alla scala di luminanza reale del chip VIC-II PAL (dal piu' scuro al bianco).
+
+ORDINE DEI COLORI (Da sinistra a destra):
+1. Nero       2. Blu         3. Marrone     4. Grigio Scuro 
+5. Rosso      6. Viola       7. Arancione   8. Grigio Medio 
+9. Verde      10. Rosa       11. Grigio Ch. 12. Azzurro (Ciano) 
+13. Giallo    14. Verde Ch.  15. Blu Chiaro 16. Bianco
+
+DIAGNOSTICA:
+- Bilanciamento del Gamma: Consente di regolare il contrasto e la luminosita' 
+  in modo che il passaggio da una barra all'altra sia una sfumatura fluida.
+- Analisi delle Interferenze: Nei collegamenti a bassa qualita' (Composito/RF), 
+  i colori saturi vicini tendono a "sbavare". Questo test dimostra la superiorita' 
+  visiva di un cavo S-Video (Y/C) schermato.
+
+--------------------------------------------------------------------------------
+TEST 3: CHECKERBOARD 1X1 (Tasto 3)
+--------------------------------------------------------------------------------
+Forza la modalita' grafica alternando pixel accesi e spenti sia in orizzontale 
+che in verticale (scacchiera microscopica 1x1). Genera la massima frequenza di 
+clock video possibile per mettere sotto sforzo la banda passante del segnale.
+
+DIAGNOSTICA:
+- Sharpness (Nitidezza): Se il cavo video o il monitor sono di scarsa qualita', 
+  lo schermo apparira' come una poltiglia grigia uniforme o tremolante. Su un 
+  ottimo monitor RGB/S-Video vedrai ogni singolo pixel scolpito nettamente.
+- Valutazione Jailbars: Essendo una schermata grigia ad altissima densita', e' 
+  il pattern perfetto per misurare l'intensita' delle "Jailbars" (le barre d'ombra 
+  verticali provocate dalle interferenze di clock sulla scheda madre del C64).
+
+--------------------------------------------------------------------------------
+TEST 4: SMPTE COLOR PATTERN (Tasto 4)
+--------------------------------------------------------------------------------
+Variante nativa per C64 dello standard televisivo SMPTE. Divide lo schermo in 3 
+sezioni verticali: Barre Grandi (75% in alto), Barre di Fase (8% al centro) e 
+Blocchi PLUGE di calibrazione (17% in basso).
+
+PROCEDURA DI TARATURA (Tramite la sezione inferiore):
+1. Regolazione Luminosita' (Brightness): Abbassare il livello finche' il blocco 
+   "Nero Profondo" (colonne 5-14) si fonde con lo sfondo nero. Il blocco "Grigio 
+   Scuro" (colonne 15-19) deve rimanere APPENA visibile.
+2. Regolazione Contrasto (Contrast): Alzare il contrasto sfruttando il blocco 
+   Bianco centrale (colonne 20-29). Portarlo al massimo possibile prima che il 
+   bianco crei distorsioni geometriche o sbavature (effetto blooming) sul CRT.
+
+--------------------------------------------------------------------------------
+TEST 5: RASTER TIMING STABILITY (Tasto 5)
+--------------------------------------------------------------------------------
+Test dinamico software puro. Spegne gli interrupt e intercetta il registro 
+VIC_RASTCNT. Quando il fascio video della TV raggiunge il centro dello schermo 
+(linea 130), la CPU cambia al volo il colore dello sfondo riga per riga tramite 
+una catena fissa di istruzioni NOP ad alta velocita'.
+
+RISULTATO VISIVO:
+Una barra sfumata (Blu, Azzurro, Bianco, Azzurro, Blu) che attraversa lo schermo 
+da parte a parte in modo continuo, invadendo orizzontalmente l'area dei bordi.
+
+DIAGNOSTICA:
+- Stabilita' del Clock: Se la barra e' solida e immobile, la CPU e il VIC-II sono 
+  perfettamente sincronizzati. Se i bordi della barra tremano orizzontalmente 
+  (Jitter), c'e' una fluttuazione nelle frequenze della scheda madre (spesso 
+  dovuta a condensatori vecchi o alimentatore degradato).
+- Nota per VICE: L'accuratezza del rendering video nelle opzioni di VICE deve 
+  essere impostata su "Per-cycle" (True PAL) per vedere la barra dritta, altrimenti 
+  l'emulazione PC potrebbe mostrare dei microscopici scalini dovuti al refresh.
+
+--------------------------------------------------------------------------------
+5. ISTRUZIONI PER LA COMPILAZIONE (ACME ASSEMBLER)
+--------------------------------------------------------------------------------
+Per generare il file eseguibile definitivo `.prg`, posizionarsi nella cartella 
+principale del progetto dove risiede il file `main.asm` e lanciare il compilatore 
+tramite riga di comando:
+
+    acme -f cbm -o video_test.prg main.asm
+
+Il file generato `video_test.prg` potra' essere caricato direttamente su un C64 
+reale (tramite SD2IEC, Kung Fu Flash, 1541 Ultimate) o trascinato dentro l'emulatore 
+VICE. Per avviarlo, digitare il classico comando:
+
+    LOAD "VIDEO_TEST.PRG",8,1
+    RUN
+================================================================================

@@ -1,0 +1,5 @@
+Create crt:
+"/Volumes/PROJECTS/Progetti/C64/Programmazione/Tools/vice-arm64-gtk3-3.8/bin/cartconv" -t normal -i "build/Video Test C64.prg" -o "build/main.crt" -n "VIDEO TEST" -l 0x8000
+
+Create bin:
+"/Volumes/PROJECTS/Progetti/C64/Programmazione/Tools/acme0/acme" --cpu 6510 -o "build/main.bin" --format plain "src/main.asm"

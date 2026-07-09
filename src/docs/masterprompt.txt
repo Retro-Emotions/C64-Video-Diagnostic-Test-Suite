@@ -1,0 +1,37 @@
+================================================================================
+MASTER PROMPT: PROGETTO C64 VIDEO DIAGNOSTIC TEST (VERSIONE 1.00 DEFINITIVA)
+================================================================================
+Ciao! Stiamo sviluppando una suite diagnostica video professionale per Commodore 64 
+compilata con ACME Assembler. Questo è il riepilogo dello stato del progetto da 
+caricare in memoria per iniziare una nuova sessione di programmazione.
+
+--- ARCHITETTURA DEI FILE E MEMORY MAP ---
+Il software è modulare ed è strutturato con la seguente divisione in RAM:
+* $0801: Header BASIC (SYS 2061) -> Inizio codice del Menu e input tastiera.
+* $0C00 - $0FFF: Screen RAM Grafica (utilizzata dai Test 1 e 3).
+* $2000 - $3F3F: Bitmap RAM Grafica (utilizzata dai Test 1 e 3).
+* $C000: Origine del file "src/prg/smpte.asm" (Test 4) per evitare sovrascritture.
+* $C200: Origine del file "src/prg/raster_stability.asm" (Test 5) protetto.
+
+--- STRUTTURA DELLE LIBRERIE IN /src/libs/ ---
+1. memory_c64.asm: Contiene gli indirizzi base hardware (!addr screenmembase = $0400, vicregsbase = $D000, colormembase = $D800, cia1regsbase = $DC00).
+2. vic_c64.asm: Mappatura parlante dei 56 registri del VIC-II (es. VIC_BORDERCOLOR).
+3. macro.asm: Contiene la macro "+print_msg .addr, .screen_offset" per stampare.
+4. constants.asm (in /src/prg/): Contiene i codici dei colori (COLOR_BLACK, ecc.), i codici PETSCII (CHAR_SOLID = $A0) e i codici tastiera del KERNAL per $C5 (KEY_1 = $38, ecc.).
+
+--- LOGICA DEI COMPONENTI E DEL RE-ENTRY ---
+* main.asm: Inizializza l'hardware a interrupt spenti (sei), pulisce lo schermo e colora la Color RAM in grigio chiaro, poi salta a "print_menu".
+* menu.asm: Disegna il menù testuale (v. 1.00 inserita alla riga 3) e intercetta i tasti da 1 a 5 leggendo il registro $C5. I rientri dai test avvengono forzando "cli" prima di saltare nuovamente a "print_menu" per non bloccare il KERNAL.
+* crosshatch.asm (Test 1) e checkerboard.asm (Test 3): Attivano la modalità bitmap standard del VIC-II ($0C00/$2000). Usano l'SMC (Codice Automodificante) per disegnare e leggono la barra spaziatrice via hardware CIA 1.
+* colorbars.asm (Test 2) e smpte.asm (Test 4): Lavorano in modalità testo usando l'SMC per scrivere direttamente nella Color RAM ($D800). Ordinamento cromatico per Luminanza PAL.
+* raster_stability.asm (Test 5): Genera una Raster Bar sfumata a tutto schermo tracciando linee orizzontali in sincrono con VIC_RASTCNT tramite una catena lineare fissa di istruzioni NOP tarata per emulatori/VICE.
+
+--- COSA FAREMO ADESSO ---
+La versione 1.00 è conclusa e stabile al 100%. Abbiamo salvato l'analisi dei requisiti per la futura Versione 2.00 che comprenderà:
+- Test di Ghosting con Sprite in movimento.
+- Test Clashing critico per cavi video e purezza grigi (Jailbars).
+- Logo UDG custom nel menù e navigazione via Joystick porta 2 / tasti cursore.
+- Routine di autodetect dello standard video PAL / NTSC per ricalibrare i NOP.
+
+Conferma la ricezione di questo Snapshot di memoria e chiedimi come vogliamo iniziare a pianificare lo sviluppo delle nuove funzioni per la versione 2.00!
+================================================================================
